@@ -27,3 +27,5 @@ Route::get('/job-posts/{id}', [JobPostController::class, 'show']);
 
 // Job Application Routes
 Route::post('/job-applications', [JobApplicationController::class, 'store']);
+Route::get('/job-applications', [JobApplicationController::class, 'index']);
+Route::get('/job-applications/{id}', [JobApplicationController::class, 'show']);
