@@ -21,3 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Job Post Routes
 Route::post('/job-posts', [JobPostController::class, 'store']);
+Route::get('/job-posts', [JobPostController::class, 'index']);
+Route::get('/job-posts/{id}', [JobPostController::class, 'show']);

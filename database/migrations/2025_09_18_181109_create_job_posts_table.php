@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('description');
             $table->string('company');
             $table->string('location');
-            $table->string('job_type'); // Full-time, part-time, contract, etc.
+            $table->string('job_type');
             $table->decimal('salary', 10, 2)->nullable();
             $table->string('contact_email');
             $table->json('skills')->nullable();

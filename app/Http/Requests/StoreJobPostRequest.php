@@ -11,7 +11,7 @@ class StoreJobPostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // Set to true to allow this request
+        return true;
     }
 
     /**
@@ -22,16 +22,26 @@ class StoreJobPostRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // @example Test Job Post
             'title' => 'required|string|max:255',
+            // @example Test Job Post Description
             'description' => 'required|string',
+            // @example Test Job Post Company
             'company' => 'required|string|max:255',
+            // @example Test Job Post Location
             'location' => 'required|string|max:255',
+            // @example Full-time
             'job_type' => 'required|string|max:50',
+            // @example 60000.00
             'salary' => 'nullable|numeric|min:0',
+            // @example contact@example.com
             'contact_email' => 'required|email|max:255',
+            // @example ["PHP", "Laravel", "JavaScript"]
             'skills' => 'nullable|array',
             'skills.*' => 'string|max:100',
+            // @example 2023-12-31
             'application_deadline' => 'nullable|date|after_or_equal:today',
+            // @example true
             'is_active' => 'nullable|boolean',
         ];
     }
