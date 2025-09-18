@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Web\JobApplicationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [JobApplicationController::class, 'index'])->name('applications.index');
+Route::get('/applications/{id}', [JobApplicationController::class, 'show'])->name('applications.show');
+Route::patch('/applications/{id}/status', [JobApplicationController::class, 'updateStatus'])->name('applications.update-status');
