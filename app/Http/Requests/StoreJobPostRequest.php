@@ -39,7 +39,7 @@ class StoreJobPostRequest extends FormRequest
             // @example ["PHP", "Laravel", "JavaScript"]
             'skills' => 'nullable|array',
             'skills.*' => 'string|max:100',
-            // @example 2023-12-31
+            // @example 2025-12-31
             'application_deadline' => 'nullable|date|after_or_equal:today',
             // @example true
             'is_active' => 'nullable|boolean',

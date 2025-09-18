@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobPostController;
+use App\Http\Controllers\JobApplicationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,3 +24,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/job-posts', [JobPostController::class, 'store']);
 Route::get('/job-posts', [JobPostController::class, 'index']);
 Route::get('/job-posts/{id}', [JobPostController::class, 'show']);
+
+// Job Application Routes
+Route::post('/job-applications', [JobApplicationController::class, 'store']);

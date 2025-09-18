@@ -38,4 +38,12 @@ class JobPost extends Model
         'is_active' => 'boolean',
         'salary' => 'decimal:2',
     ];
+
+    /**
+     * Get the applications for this job post.
+     */
+    public function applications()
+    {
+        return $this->hasMany(JobApplication::class);
+    }
 }
