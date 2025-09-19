@@ -4,11 +4,18 @@ namespace App\Services;
 
 use App\Models\JobApplication;
 use App\Models\JobPost;
+use App\Services\EmailService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
 class JobApplicationService
 {
+    protected EmailService $emailService;
+
+    public function __construct(EmailService $emailService)
+    {
+        $this->emailService = $emailService;
+    }
     /**
      * Get paginated job applications with optional filtering
      *
@@ -69,6 +76,11 @@ class JobApplicationService
         ]);
 
         $application->load('jobPost');
+
+        // Send confirmation email if email is provided
+        if ($application->email) {
+            $this->emailService->sendJobApplicationConfirmation($application);
+        }
 
         return $application;
     }

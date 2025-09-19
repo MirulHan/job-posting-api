@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Mock Mode
+    |--------------------------------------------------------------------------
+    |
+    | When mock mode is enabled, emails will be logged instead of sent.
+    | This is useful for development and testing environments.
+    |
+    */
+
+    'mock_mode' => env('MAIL_MOCK_MODE', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Mailer Configurations
     |--------------------------------------------------------------------------
     |

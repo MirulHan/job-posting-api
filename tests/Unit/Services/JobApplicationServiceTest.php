@@ -4,17 +4,20 @@ namespace Tests\Unit\Services;
 
 use Tests\TestCase;
 use App\Services\JobApplicationService;
+use App\Services\EmailService;
 use App\Models\JobApplication;
 use App\Models\JobPost;
 
 class JobApplicationServiceTest extends TestCase
 {
     protected JobApplicationService $jobApplicationService;
+    protected EmailService $emailService;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->jobApplicationService = new JobApplicationService();
+        $this->emailService = new EmailService();
+        $this->jobApplicationService = new JobApplicationService($this->emailService);
     }
 
     public function test_get_available_statuses()
