@@ -26,12 +26,12 @@ class StoreJobApplicationRequest extends FormRequest
             'job_post_id' => 'required|exists:job_posts,id',
             // @example John Doe
             'full_name' => 'required|string|max:255',
-            // @example 123-456-7890
-            'phone_number' => 'required|string|max:20',
+            // @example +1234567890
+            'phone_number' => 'required|string|regex:/^[\+]?[0-9\-\s\(\)]+$/|max:20',
             // @example contact@example.com
             'email' => 'nullable|email|max:255',
             // @example 5 years of experience in customer service and sales
-            'work_experience' => 'required|string|max:500',
+            'work_experience' => 'required|string|max:1000',
         ];
     }
 

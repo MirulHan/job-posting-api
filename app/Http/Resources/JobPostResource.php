@@ -21,13 +21,10 @@ class JobPostResource extends JsonResource
             'company' => $this->company,
             'location' => $this->location,
             'job_type' => $this->job_type,
-            'salary' => $this->when($this->salary, $this->salary),
+            'salary' => $this->salary,
             'contact_email' => $this->contact_email,
-            'skills' => $this->when($this->skills, $this->skills),
-            'application_deadline' => $this->when(
-                $this->application_deadline,
-                $this->application_deadline ? $this->application_deadline->format('Y-m-d') : null
-            ),
+            'skills' => $this->skills,
+            'application_deadline' => $this->application_deadline ? $this->application_deadline->format('Y-m-d') : null,
             'is_active' => $this->is_active,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),

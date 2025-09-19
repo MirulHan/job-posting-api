@@ -6,12 +6,20 @@ use App\Models\JobPost;
 use App\Http\Requests\StoreJobPostRequest;
 use App\Http\Resources\JobPostResource;
 use App\Http\Resources\JobPostCollection;
+use App\Services\JobPostService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class JobPostController extends Controller
 {
+    protected JobPostService $jobPostService;
+
+    public function __construct(JobPostService $jobPostService)
+    {
+        $this->jobPostService = $jobPostService;
+    }
+
     /**
      * Get a list of job posts.
      *
@@ -31,8 +39,7 @@ class JobPostController extends Controller
             $page = $validated['page'] ?? 1;
             $perPage = $validated['per_page'] ?? 15;
 
-            $query = JobPost::query();
-            $jobPosts = $query->paginate($perPage, ['*'], 'page', $page);
+            $jobPosts = $this->jobPostService->getPaginatedJobPosts($page, $perPage);
 
             return new JobPostCollection($jobPosts);
         } catch (\Exception $e) {
@@ -55,31 +62,7 @@ class JobPostController extends Controller
     public function store(StoreJobPostRequest $request): JsonResponse
     {
         try {
-            $skills = collect($request->skills)
-                ->when(is_string($request->skills), function ($collection) use ($request) {
-                    return collect(explode(',', $request->skills));
-                })
-                ->filter()
-                ->map(function ($skill) {
-                    return trim($skill);
-                })
-                ->values()
-                ->toArray();
-
-            $skills = !empty($skills) ? $skills : null;
-
-            $jobPost = JobPost::create([
-                'title' => $request->title,
-                'description' => $request->description,
-                'company' => $request->company,
-                'location' => $request->location,
-                'job_type' => $request->job_type,
-                'salary' => $request->salary,
-                'contact_email' => $request->contact_email,
-                'skills' => $skills,
-                'application_deadline' => $request->application_deadline,
-                'is_active' => $request->has('is_active') ? $request->is_active : true,
-            ]);
+            $jobPost = $this->jobPostService->createJobPost($request->validated());
 
             return (new JobPostResource($jobPost))
                 ->additional(['success' => true, 'message' => 'Job post created successfully'])
@@ -102,7 +85,7 @@ class JobPostController extends Controller
     public function show(int $id): JobPostResource|JsonResponse
     {
         try {
-            $jobPost = JobPost::findOrFail($id);
+            $jobPost = $this->jobPostService->findJobPost($id);
 
             return (new JobPostResource($jobPost))
                 ->additional(['success' => true]);

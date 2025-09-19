@@ -7,11 +7,24 @@ use App\Http\Resources\JobApplicationResource;
 use App\Http\Resources\JobApplicationCollection;
 use App\Models\JobApplication;
 use App\Models\JobPost;
+use App\Services\JobApplicationService;
+use App\Services\JobPostService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class JobApplicationController extends Controller
 {
+    protected JobApplicationService $jobApplicationService;
+    protected JobPostService $jobPostService;
+
+    public function __construct(
+        JobApplicationService $jobApplicationService,
+        JobPostService $jobPostService
+    ) {
+        $this->jobApplicationService = $jobApplicationService;
+        $this->jobPostService = $jobPostService;
+    }
+
     /**
      * Display a listing of job applications.
      *
@@ -28,20 +41,20 @@ class JobApplicationController extends Controller
                 'per_page' => 'nullable|integer|min:1|max:100',
                 // @example 1
                 'status' => 'nullable|in:applied,screening,interview,offer,accepted,failed',
+                'job_post_id' => 'nullable|integer|exists:job_posts,id',
             ]);
 
             $page = $validated['page'] ?? 1;
             $perPage = $validated['per_page'] ?? 15;
+            $status = $validated['status'] ?? null;
+            $jobPostId = $validated['job_post_id'] ?? null;
 
-            $query = JobApplication::query()->with('jobPost');
-
-            if (isset($validated['status'])) {
-                $query->where('status', $validated['status']);
-            }
-
-            $query->orderBy('created_at', 'desc');
-
-            $applications = $query->paginate($perPage, ['*'], 'page', $page);
+            $applications = $this->jobApplicationService->getPaginatedApplications(
+                $page,
+                $perPage,
+                $status,
+                $jobPostId
+            );
 
             return new JobApplicationCollection($applications);
         } catch (\Exception $e) {
@@ -62,7 +75,7 @@ class JobApplicationController extends Controller
     public function show(int $id): JobApplicationResource|JsonResponse
     {
         try {
-            $application = JobApplication::with('jobPost')->findOrFail($id);
+            $application = $this->jobApplicationService->findApplicationWithJobPost($id);
 
             return (new JobApplicationResource($application))
                 ->additional(['success' => true]);
@@ -74,6 +87,7 @@ class JobApplicationController extends Controller
             ], 404);
         }
     }
+
     /**
      * Store a new job application.
      *
@@ -83,32 +97,18 @@ class JobApplicationController extends Controller
     public function store(StoreJobApplicationRequest $request): JobApplicationResource|JsonResponse
     {
         try {
-            $jobPost = JobPost::findOrFail($request->job_post_id);
+            $jobPost = $this->jobPostService->findJobPost($request->job_post_id);
 
-            if (!$jobPost->is_active) {
+            // Check if job post is accepting applications
+            $validationError = $this->jobPostService->getApplicationValidationError($jobPost);
+            if ($validationError) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'This job post is no longer accepting applications',
+                    'message' => $validationError,
                 ], 422);
             }
 
-            if ($jobPost->application_deadline && now()->gt($jobPost->application_deadline)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'The application deadline for this job has passed',
-                ], 422);
-            }
-
-            $jobApplication = JobApplication::create([
-                'job_post_id' => $request->job_post_id,
-                'full_name' => $request->full_name,
-                'phone_number' => $request->phone_number,
-                'email' => $request->email,
-                'work_experience' => $request->work_experience,
-                'status' => 'applied',
-            ]);
-
-            $jobApplication->load('jobPost');
+            $jobApplication = $this->jobApplicationService->createApplication($request->validated());
 
             return (new JobApplicationResource($jobApplication))
                 ->additional([
